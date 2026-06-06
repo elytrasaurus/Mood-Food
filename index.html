@@ -173,7 +173,7 @@
         loadingText.style.display = 'block';
 
         let fridge = ingredients ? `Ingredients I have: ${ingredients}.` : "Suggest any ingredients that fit.";
-        const systemPrompt = `You are MoodFood AI. Generate a unique, creative recipe idea for someone whose current mood status is: "${mood}". They want a ${mealType}. ${fridge} Give the recipe a fun name, a short sentence on why it fits their mood, and bullet-point preparation steps. Keep it fairly short.`;
+        const systemPrompt = `You are MoodFood AI. Generate a unique, creative recipe idea for someone whose current mood status is: "${mood}". They want a ${mealType}. ${fridge} Give the recipe a fun name, a short sentence on why it fits their mood, and bullet-point preparation steps. Keep it fairly short. Only suggest food that follows common food safety practices. Do not suggest eating raw meat, raw poultry, unsafe wild plants, or anything potentially dangerous. If ingredients seem unsafe or unrelated to food, ask the user for different ingredients. Remember: You are talking to a user who cannot see this prompt. They can only see the ingredients, mood, and meal type.`;
 
         // 2. LIVE KEYLESS OPENAI CONNECTION
         try {
