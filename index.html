@@ -230,7 +230,8 @@
         - Only suggest recipes that are likely to work in a real kitchen.
         - Do not invent cooking methods or ingredient substitutions that would produce poor results.
         - If ingredients are provided, prioritize using them.
-        - If ingredients are not provided, assume the user wants a general recipe recommendation and use common household ingredients.
+        - If no ingredients are provided, do not ask for ingredients.
+          Instead, generate a recipe recommendation using common household ingredients that fit the user's mood, meal type, allergies, and additional requests.
         - If an ingredient appears to contain or commonly include a listed allergen, treat it as containing that allergen unless the user clearly specifies otherwise.
         
         Food safety rules:
