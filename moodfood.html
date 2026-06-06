@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodFood AI - Free OpenAI Edition</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #141419;
+            color: #f5f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .app-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            max-width: 480px;
+            width: 100%;
+        }
+
+        h1 { text-align: center; margin-top: 0; color: #4ea8de; font-size: 2em; }
+        
+        .input-group { margin-bottom: 18px; }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            background: #22222b;
+            color: white;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4ea8de;
+            box-shadow: 0 0 8px rgba(78, 168, 222, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: #4ea8de;
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover { background: #56cfe1; transform: translateY(-1px); }
+
+        .error-message {
+            color: #ff595e;
+            background: rgba(255, 89, 94, 0.1);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: bold;
+            border: 1px solid #ff595e;
+            text-align: center;
+        }
+
+        #result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #22222b;
+            border-radius: 14px;
+            border-left: 5px solid #56cfe1;
+            white-space: pre-line;
+            display: none;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            color: #56cfe1;
+            font-style: italic;
+            display: none;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>MoodFood AI 🍲🧠</h1>
+
+    <div id="error-box" class="error-message"></div>
+
+    <div class="input-group">
+        <label for="mood">Your Current Mood</label>
+        <input type="text" id="mood" placeholder="e.g., Happy for the weekend, lazy">
+    </div>
+
+    <div class="input-group">
+        <label for="meal-type">Meal Type</label>
+        <select id="meal-type">
+            <option value="">-- Select --</option>
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Dinner">Dinner</option>
+            <option value="Snack">Snack</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label for="ingredients">Fridge Ingredients? (Optional)</label>
+        <textarea id="ingredients" rows="2" placeholder="e.g., eggs, cheese, bread..."></textarea>
+    </div>
+
+    <button onclick="runMoodFoodOpenAI()">Ask Real OpenAI Chef 🚀</button>
+
+    <div id="loading-text" class="loading">🧠 OpenAI is creating a custom recipe...</div>
+    <div id="result-box"></div>
+</div>
+
+<script>
+    async function runMoodFoodOpenAI() {
+        const mood = document.getElementById('mood').value.trim();
+        const mealType = document.getElementById('meal-type').value;
+        const ingredients = document.getElementById('ingredients').value.trim();
+        
+        const errorBox = document.getElementById('error-box');
+        const resultBox = document.getElementById('result-box');
+        const loadingText = document.getElementById('loading-text');
+
+        errorBox.style.display = 'none';
+        resultBox.style.display = 'none';
+
+        // 1. INPUT VALIDATION SYSTEM
+        if (!mood || mood.length < 3 || mood.toLowerCase() === 'hi' || mood.toLowerCase() === 'hello') {
+            errorBox.innerText = "Invalid Mood, try again";
+            errorBox.style.display = 'block';
+            return;
+        }
+
+        if (!mealType) {
+            errorBox.innerText = "Invalid Meal Type, try again";
+            errorBox.style.display = 'block';
+            return;
+        }
+
+        loadingText.style.display = 'block';
+
+        let fridge = ingredients ? `Ingredients I have: ${ingredients}.` : "Suggest any ingredients that fit.";
+        const systemPrompt = `You are MoodFood AI. Generate a unique, creative recipe idea for someone whose current mood status is: "${mood}". They want a ${mealType}. ${fridge} Give the recipe a fun name, a short sentence on why it fits their mood, and bullet-point preparation steps. Keep it fairly short.`;
+
+        // 2. LIVE KEYLESS OPENAI CONNECTION
+        try {
+            const response = await puter.ai.chat(systemPrompt);
+
+            loadingText.style.display = 'none';
+
+            console.log("Raw response:", response);
+            console.log("JSON response:", JSON.stringify(response, null, 2));
+
+            let outputText = null;
+
+            // Common response formats
+            if (typeof response === "string") {
+                outputText = response;
+            }
+            else if (
+                response?.message?.content &&
+                Array.isArray(response.message.content)
+            ) {
+                outputText = response.message.content[0].text;
+            }
+            else if (response?.choices?.[0]?.message?.content) {
+                outputText = response.choices[0].message.content;
+            }
+            else if (response?.text) {
+                outputText = response.text;
+            }
+            else if (response?.content) {
+                outputText = response.content;
+            }
+
+            // Show recipe if found
+            if (outputText) {
+                resultBox.innerText = outputText;
+            }
+            else {
+                resultBox.innerText =
+                    "No text found. Full response:\\n\\n" +
+                    JSON.stringify(response, null, 2);
+            }
+
+            resultBox.style.display = "block";
+
+        } catch (err) {
+            loadingText.style.display = 'none';
+            errorBox.innerText = "Failed to connect to OpenAI. Give it one more click.";
+            errorBox.style.display = 'block';
+
+            console.error(err);
+        }
+    }
+</script>
+
+</body>
+</html>
